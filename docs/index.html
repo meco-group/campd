@@ -5,53 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Primary Meta Tags -->
-  <!-- TODO: Replace with your paper title and author names -->
-  <meta name="title" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models - AUTHOR_NAMES">
-  <!-- TODO: Write a compelling 150-160 character description of your research -->
-  <meta name="description" content="Coming soon">
-  <!-- TODO: Add 5-10 relevant keywords for your research area -->
+  <meta name="title" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models - Edward Sandra, Lander Vanroye, Dries Dirckx, Ruben Cartuyvels, Jan Swevers, Wilm Decré">
+  <meta name="description" content="Classical methods in robot motion planning, such as sampling-based and optimization-based methods, often struggle with scalability towards higher-dimensional state spaces and complex environments. Diffusion models, known for their capability to learn complex, high-dimensional and multi-modal data distributions, provide a promising alternative when applied to motion planning problems and have already shown interesting results. However, most of the current approaches train their model for a single environment, limiting their generalization to environments not seen during training. The techniques that do train a model for multiple environments rely on a specific camera to provide the model with the necessary environmental information and therefore always require that sensor. To effectively adapt to diverse scenarios without the need for retraining, this research proposes Context-Aware Motion Planning Diffusion (CAMPD). CAMPD leverages a classifier-free denoising probabilistic diffusion model, conditioned on sensor-agnostic contextual information. An attention mechanism, integrated in the well-known U-Net architecture, conditions the model on an arbitrary number of contextual parameters. CAMPD is evaluated on a 7-DoF robot manipulator and benchmarked against state-of-the-art approaches on real-world tasks, showing its ability to generalize to unseen environments and generate high-quality, multi-modal trajectories, at a fraction of the time required by existing methods.">
   <meta name="keywords" content="Imitation Learning, Motion Planning, Diffusion Models, Robotics">
-  <!-- TODO: List all authors -->
   <meta name="author" content="Edward Sandra, Lander Vanroye, Dries Dirckx, Ruben Cartuyvels, Jan Swevers, Wilm Decré">
   <meta name="robots" content="index, follow">
   <meta name="language" content="English">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="article">
-  <!-- TODO: Replace with your institution or lab name -->
-  <meta property="og:site_name" content="KU Leuven - MECO Group">
-  <!-- TODO: Same as paper title above -->
+  <meta property="og:site_name" content="KU Leuven MECO Group">
   <meta property="og:title" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models">
-  <!-- TODO: Same as description above -->
-  <meta property="og:description" content="Coming soon!">
-  <!-- TODO: Replace with your actual website URL -->
+  <meta property="og:description" content="Classical methods in robot motion planning, such as sampling-based and optimization-based methods, often struggle with scalability towards higher-dimensional state spaces and complex environments. Diffusion models, known for their capability to learn complex, high-dimensional and multi-modal data distributions, provide a promising alternative when applied to motion planning problems and have already shown interesting results. However, most of the current approaches train their model for a single environment, limiting their generalization to environments not seen during training. The techniques that do train a model for multiple environments rely on a specific camera to provide the model with the necessary environmental information and therefore always require that sensor. To effectively adapt to diverse scenarios without the need for retraining, this research proposes Context-Aware Motion Planning Diffusion (CAMPD). CAMPD leverages a classifier-free denoising probabilistic diffusion model, conditioned on sensor-agnostic contextual information. An attention mechanism, integrated in the well-known U-Net architecture, conditions the model on an arbitrary number of contextual parameters. CAMPD is evaluated on a 7-DoF robot manipulator and benchmarked against state-of-the-art approaches on real-world tasks, showing its ability to generalize to unseen environments and generate high-quality, multi-modal trajectories, at a fraction of the time required by existing methods.">
   <meta property="og:url" content="https://meco-group.github.io/campd">
   <!-- TODO: Create a 1200x630px preview image and update path -->
-  <meta property="og:image" content="https://YOUR_DOMAIN.com/static/images/social_preview.png">
+  <!-- <meta property="og:image" content="https://YOUR_DOMAIN.com/static/images/social_preview.png"> -->
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models - Research Preview">
-  <meta property="article:published_time" content="2026-01-06T00:00:00.000Z">
+  <meta property="article:published_time" content="2024-01-01T00:00:00.000Z">
   <meta property="article:author" content="Edward Sandra">
   <meta property="article:section" content="Research">
   <meta property="article:tag" content="Imitation Learning">
   <meta property="article:tag" content="Motion Planning">
   <meta property="article:tag" content="Diffusion Models">
   <meta property="article:tag" content="Robotics">
-
-  <!-- Twitter -->
-  <!-- <meta name="twitter:card" content="summary_large_image"> -->
-  <!-- TODO: Replace with your lab/institution Twitter handle -->
-  <!-- <meta name="twitter:site" content="@YOUR_TWITTER_HANDLE"> -->
-  <!-- TODO: Replace with first author's Twitter handle -->
-  <!-- <meta name="twitter:creator" content="@AUTHOR_TWITTER_HANDLE"> -->
-  <!-- TODO: Same as paper title above -->
-  <!-- <meta name="twitter:title" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models"> -->
-  <!-- TODO: Same as description above -->
-  <!-- <meta name="twitter:description" content="Coming soon!"> -->
-  <!-- TODO: Same as social preview image above -->
-  <!-- <meta name="twitter:image" content="https://YOUR_DOMAIN.com/static/images/social_preview.png"> -->
-  <!-- <meta name="twitter:image:alt" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models - Research Preview"> -->
 
   <!-- Academic/Research Specific -->
   <meta name="citation_title" content="Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models">
@@ -62,8 +40,9 @@
   <meta name="citation_author" content="Swevers, Jan">
   <meta name="citation_author" content="Decré, Wilm">
   <meta name="citation_publication_date" content="2026">
-  <meta name="citation_conference_title" content="ICRA 2026">
-  <meta name="citation_pdf_url" content="">
+  <meta name="citation_conference_title" content="2026 IEEE International Conference on Robotics & Automation">
+  <!-- TODO: Replace with your paper PDF URL -->
+  <meta name="citation_pdf_url" content="https://arxiv.org/abs/2510.14615">
   
   <!-- Additional SEO -->
   <meta name="theme-color" content="#2563eb">
@@ -78,13 +57,11 @@
   <link rel="preconnect" href="https://documentcloud.adobe.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
-
-  <!-- TODO: Replace with your paper title and authors -->
   <title>Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models - Edward Sandra, Lander Vanroye, Dries Dirckx, Ruben Cartuyvels, Jan Swevers, Wilm Decré | Academic Research</title>
   
   <!-- Favicon and App Icons -->
-  <!-- <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="apple-touch-icon" href="static/images/favicon.ico"> -->
+  <!-- <link rel="icon" type="image/x-icon" href="static/images/favicon.ico"> -->
+  <!-- <link rel="apple-touch-icon" href="static/images/favicon.ico"> -->
   
   <!-- Critical CSS - Load synchronously -->
   <link rel="stylesheet" href="static/css/bulma.min.css">
@@ -116,73 +93,116 @@
   <script defer src="static/js/index.js"></script>
   
   <!-- Structured Data for Academic Papers -->
-  <!-- <script type="application/ld+json">
+  <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "ScholarlyArticle",
     "headline": "Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models",
-    "description": "Coming soon!",
+    "description": "Classical methods in robot motion planning, such as sampling-based and optimization-based methods, often struggle with scalability towards higher-dimensional state spaces and complex environments. Diffusion models, known for their capability to learn complex, high-dimensional and multi-modal data distributions, provide a promising alternative when applied to motion planning problems and have already shown interesting results. However, most of the current approaches train their model for a single environment, limiting their generalization to environments not seen during training. The techniques that do train a model for multiple environments rely on a specific camera to provide the model with the necessary environmental information and therefore always require that sensor. To effectively adapt to diverse scenarios without the need for retraining, this research proposes Context-Aware Motion Planning Diffusion (CAMPD). CAMPD leverages a classifier-free denoising probabilistic diffusion model, conditioned on sensor-agnostic contextual information. An attention mechanism, integrated in the well-known U-Net architecture, conditions the model on an arbitrary number of contextual parameters. CAMPD is evaluated on a 7-DoF robot manipulator and benchmarked against state-of-the-art approaches on real-world tasks, showing its ability to generalize to unseen environments and generate high-quality, multi-modal trajectories, at a fraction of the time required by existing methods.",
     "author": [
       {
         "@type": "Person",
-        "name": "FIRST_AUTHOR_NAME",
+        "name": "Edward Sandra",
         "affiliation": {
           "@type": "Organization",
-          "name": "INSTITUTION_NAME"
+          "name": "KU Leuven"
         }
       },
       {
         "@type": "Person",
-        "name": "SECOND_AUTHOR_NAME",
+        "name": "Lander Vanroye",
         "affiliation": {
           "@type": "Organization",
-          "name": "INSTITUTION_NAME"
+          "name": "KU Leuven"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Dries Dirckx",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "KU Leuven"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Ruben Cartuyvels",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "KU Leuven"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Jan Swevers",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "KU Leuven"
+        }
+      },
+      {
+        "@type": "Person",
+        "name": "Wilm Decré",
+        "affiliation": {
+          "@type": "Organization",
+          "name": "KU Leuven"
         }
       }
     ],
-    "datePublished": "2024-01-01",
+    "datePublished": "2026-06-01",
     "publisher": {
       "@type": "Organization",
-      "name": "CONFERENCE_OR_JOURNAL_NAME"
+      "name": "2026 IEEE International Conference on Robotics & Automation"
     },
-    "url": "https://YOUR_DOMAIN.com/YOUR_PROJECT_PAGE",
-    "image": "https://YOUR_DOMAIN.com/static/images/social_preview.png",
-    "keywords": ["KEYWORD1", "KEYWORD2", "KEYWORD3", "machine learning", "computer vision"],
-    "abstract": "FULL_ABSTRACT_TEXT_HERE",
-    "citation": "BIBTEX_CITATION_HERE",
+    "url": "https://meco-group.github.io/campd",
+    "image": "",
+    "keywords": ["Imitation Learning", "Motion Planning", "Diffusion Models", "Robotics", "Machine Learning"],
+    "abstract": "Classical methods in robot motion planning, such as sampling-based and optimization-based methods, often struggle with scalability towards higher-dimensional state spaces and complex environments. Diffusion models, known for their capability to learn complex, high-dimensional and multi-modal data distributions, provide a promising alternative when applied to motion planning problems and have already shown interesting results. However, most of the current approaches train their model for a single environment, limiting their generalization to environments not seen during training. The techniques that do train a model for multiple environments rely on a specific camera to provide the model with the necessary environmental information and therefore always require that sensor. To effectively adapt to diverse scenarios without the need for retraining, this research proposes Context-Aware Motion Planning Diffusion (CAMPD). CAMPD leverages a classifier-free denoising probabilistic diffusion model, conditioned on sensor-agnostic contextual information. An attention mechanism, integrated in the well-known U-Net architecture, conditions the model on an arbitrary number of contextual parameters. CAMPD is evaluated on a 7-DoF robot manipulator and benchmarked against state-of-the-art approaches on real-world tasks, showing its ability to generalize to unseen environments and generate high-quality, multi-modal trajectories, at a fraction of the time required by existing methods.",
+    "citation": "@misc{sandra2026acceleratedmultimodalmotionplanning, title={Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models}, author={Edward Sandra and Lander Vanroye and Dries Dirckx and Ruben Cartuyvels and Jan Swevers and Wilm Decré}, year={2026}, eprint={2510.14615}, archivePrefix={arXiv}, primaryClass={cs.RO}, url={https://arxiv.org/abs/2510.14615}, }",
     "isAccessibleForFree": true,
     "license": "https://creativecommons.org/licenses/by/4.0/",
     "mainEntity": {
       "@type": "WebPage",
-      "@id": "https://YOUR_DOMAIN.com/YOUR_PROJECT_PAGE"
+      "@id": "https://meco-group.github.io/campd"
     },
     "about": [
       {
         "@type": "Thing",
-        "name": "RESEARCH_AREA_1"
+        "name": "Imitation Learning"
       },
       {
         "@type": "Thing", 
-        "name": "RESEARCH_AREA_2"
+        "name": "Motion Planning"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Diffusion Models"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Robotics"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Machine Learning"
       }
     ]
   }
   </script>
-   -->
+  
   <!-- Website/Organization Structured Data -->
-  <!-- <script type="application/ld+json">
+  <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "INSTITUTION_OR_LAB_NAME",
-    "url": "https://YOUR_INSTITUTION_WEBSITE.com",
-    "logo": "https://YOUR_DOMAIN.com/static/images/favicon.ico",
+    "name": "KU Leuven - MECO Group",
+    "url": "https://meco-group.github.io",
+    "logo": "",
     "sameAs": [
-      "https://twitter.com/YOUR_TWITTER_HANDLE",
-      "https://github.com/YOUR_GITHUB_USERNAME"
+      "https://github.com/meco-group"
     ]
   }
-  </script> -->
+  </script>
 </head>
 <body>
 
@@ -198,74 +218,61 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <!-- TODO: Replace with your paper title -->
             <h1 class="title is-1 publication-title">Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models</h1>
             <div class="is-size-5 publication-authors">
-              <!-- TODO: Replace with your paper authors and their personal links -->
               <span class="author-block">
-                <a href="" target="_blank">Edward Sandra</a>,</span>
+                <a href="https://www.kuleuven.be/wieiswie/nl/person/00174292" target="_blank">Edward Sandra</a>,</span>
                 <span class="author-block">
-                  <a href="" target="_blank">Lander Vanroye</a>,</span>
+                  Lander Vanroye,</span>
                   <span class="author-block">
-                    <a href="" target="_blank">Dries Dirckx</a>, </span>
+                    Dries Dirckx
+                  </span>
                   <span class="author-block">
-                    <a href="" target="_blank">Ruben Cartuyvels</a>, </span>
+                    Ruben Cartuyvels
+                  </span>
                   <span class="author-block">
-                    <a href="" target="_blank">Jan Swevers</a>, </span>
+                    Jan Swevers
+                  </span>
                   <span class="author-block">
-                    <a href="" target="_blank">Wilm Decré</a>
+                    Wilm Decré
                   </span>
                   </div>
 
                   <div class="is-size-5 publication-authors">
-                    <!-- TODO: Replace with your institution and conference/journal info -->
-                    <span class="author-block">KU Leuven<br>ICRA 2026</span>
+                    <span class="author-block">KU Leuven<br>2026 IEEE International Conference on Robotics & Automation (ICRA)</span>
                   </div>
 
                   <div class="column has-text-centered">
                     <div class="publication-links">
-                         <!-- TODO: Update with your arXiv paper ID -->
                       <span class="link-block">
-                        <div
+                        <a href="https://arxiv.org/pdf/2510.14615.pdf" target="_blank"
                         class="external-link button is-normal is-rounded is-dark">
                         <span class="icon">
                           <i class="fas fa-file-pdf"></i>
                         </span>
                         <span>Paper</span>
-                      </div>
+                      </a>
                     </span>
 
-                    <!-- TODO: Add your supplementary material PDF or remove this section -->
-                    <span class="link-block">
-                      <div
-                      class="external-link button is-normal is-rounded is-dark">
-                      <span class="icon">
-                        <i class="fas fa-file-pdf"></i>
-                      </span>
-                      <span>Supplementary</span>
-                    </div>
-                  </span>
 
-                  <!-- TODO: Replace with your GitHub repository URL -->
                   <span class="link-block">
-                    <div
+                    <a href="https://github.com/meco-group/campd" target="_blank"
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-github"></i>
                     </span>
                     <span>Code</span>
-                  </div>
+                  </a>
                 </span>
 
-                <!-- TODO: Update with your arXiv paper ID -->
                 <span class="link-block">
-                  <div
+                  <a href="https://arxiv.org/abs/2510.14615" target="_blank"
                   class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                     <i class="ai ai-arxiv"></i>
                   </span>
                   <span>arXiv</span>
-                </div>
+                </a>
               </span>
             </div>
           </div>
@@ -276,6 +283,21 @@
 </section>
 
 
+<!-- Teaser video-->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video poster="" id="tree" autoplay controls muted loop height="100%" preload="metadata">
+        <source src="static/videos/campd_icra.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        Overview of our proposed method: Context-Aware Motion Planning Diffusion (CAMPD)
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser video -->
+
 <!-- Paper abstract -->
 <section class="section hero is-light">
   <div class="container is-max-desktop">
@@ -283,33 +305,8 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
-          <!-- TODO: Replace with your paper abstract -->
           <p>
-            Classical methods in robot motion planning, such
-as sampling-based and optimization-based methods, often strug-
-gle with scalability towards higher-dimensional state spaces and
-complex environments. Diffusion models, known for their capa-
-bility to learn complex, high-dimensional and multi-modal data
-distributions, provide a promising alternative when applied to
-motion planning problems and have already shown interesting
-results. However, most of the current approaches train their
-model for a single environment, limiting their generalization to
-unseen environments. The techniques that do train a model for
-multiple environments rely on a specific camera to provide the
-model with the necessary environmental information. To effec-
-tively adapt to diverse scenarios without the need for retraining,
-this research proposes Context-Aware Motion Planning Diffu-
-sion (CAMPD). CAMPD leverages a classifier-free denoising
-probabilistic diffusion model, conditioned on sensor-agnostic
-contextual information. An attention mechanism, integrated
-in the well-known U-Net architecture, conditions the model
-on an arbitrary number of contextual parameters. CAMPD
-is evaluated on a 7-DoF robot manipulator and benchmarked
-against state-of-the-art approaches on real-world tasks, showing
-its ability to generalize to unseen environments and generate
-high-quality, multi-modal trajectories, at a fraction of the time
-required by existing methods.
-          </p>
+            Classical methods in robot motion planning, such as sampling-based and optimization-based methods, often struggle with scalability towards higher-dimensional state spaces and complex environments. Diffusion models, known for their capability to learn complex, high-dimensional and multi-modal data distributions, provide a promising alternative when applied to motion planning problems and have already shown interesting results. However, most of the current approaches train their model for a single environment, limiting their generalization to environments not seen during training. The techniques that do train a model for multiple environments rely on a specific camera to provide the model with the necessary environmental information and therefore always require that sensor. To effectively adapt to diverse scenarios without the need for retraining, this research proposes Context-Aware Motion Planning Diffusion (CAMPD). CAMPD leverages a classifier-free denoising probabilistic diffusion model, conditioned on sensor-agnostic contextual information. An attention mechanism, integrated in the well-known U-Net architecture, conditions the model on an arbitrary number of contextual parameters. CAMPD is evaluated on a 7-DoF robot manipulator and benchmarked against state-of-the-art approaches on real-world tasks, showing its ability to generalize to unseen environments and generate high-quality, multi-modal trajectories, at a fraction of the time required by existing methods.          </p>
         </div>
       </div>
     </div>
@@ -317,17 +314,311 @@ required by existing methods.
 </section>
 <!-- End paper abstract -->
 
-<!-- Coming soon -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <div class="content has-text-centered">
-        <p>Coming Soon</p>
+<!-- Overview -->
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            Robot motion planning is the task of finding a smooth, collision-free trajectory that moves a robot
+            from a start configuration to a goal configuration. While classical planning methods such as
+            sampling-based and optimization-based planners can perform well, they often struggle in
+            high-dimensional spaces and cluttered environments, especially when fast replanning is required.
+          </p>
+          <p>
+            We introduce <strong>Context-Aware Motion Planning Diffusion (CAMPD)</strong>, a diffusion-based motion planner
+            that generates high-quality, multi-modal robot trajectories while directly conditioning on
+            structured environmental context. Instead of relying on a camera or depth sensor, CAMPD uses
+            <strong>sensor-agnostic context</strong>, such as obstacle positions, sizes, and shapes, making it flexible and
+            efficient across many environments.
+          </p>
+          <p>
+            CAMPD combines a U-Net diffusion architecture with an attention mechanism that allows the model
+            to reason over an arbitrary number of contextual elements, such as varying numbers of obstacles.
+            This enables strong generalization to previously unseen environments while maintaining very low
+            inference time.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </section>
-<!-- End coming soon -->
+<!-- End overview -->
+
+<!-- Key Contributions -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column">
+        <h2 class="title is-3 has-text-centered">Key Contributions</h2>
+        <div class="content">
+          <ul>
+            <li>
+              <strong>Context-aware diffusion planning:</strong> CAMPD directly integrates structured, sensor-agnostic
+              context into a diffusion-based motion planner.
+            </li>
+            <li>
+              <strong>Improved generalization:</strong> the model adapts well to unseen environments and varying obstacle
+              configurations without retraining.
+            </li>
+            <li>
+              <strong>Real-time, executable trajectories:</strong> CAMPD generates high-quality, dynamically feasible trajectories in
+              real time, enabling rapid planning and replanning in
+              dynamic settings.   
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End key contributions -->
+
+
+<!-- Method -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column">
+        <h2 class="title is-3 has-text-centered">Method</h2>
+        <div class="content has-text-justified">
+          <p>
+            CAMPD formulates motion planning as a <strong>planning-as-inference</strong> problem using a denoising diffusion
+            probabilistic model. During training, expert trajectories are gradually perturbed with Gaussian noise,
+            while the model learns to reconstruct the noise conditioned on the start state, goal state, and
+            contextual information about the environment.
+          </p>
+          <p>
+            The model contains three main components:
+          </p>
+          <ul>
+            <li>
+              A <strong>time encoder</strong> that embeds the diffusion step.
+            </li>
+            <li>
+              A <strong>context encoder</strong> that maps structured environment information, such as obstacle parameters,
+              into latent representations.
+            </li>
+            <li>
+              A <strong>U-Net with attention</strong> that predicts the noise added to a trajectory and fuses the encoded
+              context into the denoising process.
+            </li>
+          </ul>
+          <p>
+            During inference, CAMPD starts from Gaussian noise and iteratively denoises it into a feasible robot
+            trajectory. By using <strong>classifier-free guidance</strong>, the generated trajectories are steered more strongly
+            toward solutions that satisfy the provided context. The start and goal states are fixed throughout
+            denoising, and a lightweight Gaussian smoothing step is applied at the end to reduce jerk.
+          </p>
+        </div>
+
+        <figure class="image">
+          <img src="static/images/overview.png" alt="Overview of the CAMPD pipeline">
+        </figure>
+        <p class="has-text-centered is-size-6">
+          <em>Overview of CAMPD.</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End method -->
+
+
+<!-- Context Representation -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-vcentered">
+      <div class="column">
+        <h2 class="title is-4">Context Representation</h2>
+        <div class="content has-text-justified">
+          <p>
+            A key feature of CAMPD is that it can be conditioned on a structured representation of the scene.
+            Each obstacle or scene element is represented by a parameter vector, for example:
+          </p>
+          <ul>
+            <li><strong>Spheres:</strong> position and radius</li>
+            <li><strong>Cuboids:</strong> position, dimensions, and orientation</li>
+            <li><strong>Other object types:</strong> encoded through dedicated context-specific networks</li>
+          </ul>
+          <p>
+            Because the context is processed instance-by-instance and fused through attention, the method can
+            naturally handle a variable number of obstacles at test time. This is important for real robotic
+            environments, where the number and layout of objects can change from one task to the next.
+          </p>
+        </div>
+      </div>
+
+      <div class="column is-6">
+        <figure class="image">
+          <img src="static/images/context_encoder.png" alt="Context encoder">
+        </figure>
+        <p class="has-text-centered is-size-6">
+          <em>Each contextual element is encoded separately before being fused into the diffusion model. 
+            Elements of the same context type are encoded using the same network. 
+          </em>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End context representation -->
+
+<!-- Experiments & Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Experiments & Results</h2>
+
+    <!-- Sphere-based -->
+    <div class="content has-text-justified">
+      <h3 class="title is-4">Sphere-Based Environments</h3>
+      <p>
+        We first evaluate CAMPD on synthetic environments with a varying number of spherical obstacles.
+        The model is trained on trajectories generated by a hybrid planner (RRT-Connect + optimization)
+        and tested on unseen environments. The goal is to assess generalization, multi-modality, and
+        computational efficiency.
+      </p>
+      <p>
+        CAMPD achieves higher success rates and faster planning times compared to classical and
+        learning-based baselines, while generating diverse, multi-modal trajectories. Notably,
+        it can outperform the planner used to generate its training data by sampling solutions
+        from a broader distribution of feasible trajectories.
+      </p>
+      <p>
+        The tables below report quantitative results, while the videos illustrate the diversity
+        and quality of generated trajectories in unseen environments.
+      </p>
+    </div>
+
+     <figure class="image">
+          <img src="static/images/table_spheres.png" alt="Benchmark results sphere-based environments">
+        </figure>
+
+    <!-- Videos row -->
+    <div class="columns is-variable is-4">
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_0.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_7.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_33.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+
+    <!-- Real-world -->
+    <div class="content has-text-justified mt-6">
+      <h3 class="title is-4">Simulated Real-World Tasks</h3>
+      <p>
+        We further evaluate CAMPD on realistic manipulation tasks from the MπNet benchmark.
+        These environments include complex scenes with cuboids and other objects, requiring
+        accurate and collision-free motion planning.
+      </p>
+      <p>
+        CAMPD achieves competitive or superior success rates compared to strong baselines such
+        as cuRobo and DiffusionSeeder, while maintaining significantly lower planning times.
+        At larger batch sizes, its performance improves further by efficiently sampling multiple
+        candidate trajectories and selecting feasible ones.
+      </p>
+      <p>
+        The quantitative results are shown in the tables below, and the videos demonstrate
+        successful motion planning in challenging, previously unseen scenarios.
+      </p>
+    </div>
+
+    <figure class="image">
+          <img src="static/images/table_mpinets.png" alt="Benchmark results MπNet environments">
+        </figure>
+
+
+    <!-- Videos row -->
+    <div class="columns is-variable is-4">
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_mpinets_887.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_mpinets_937.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="column is-4">
+        <video autoplay loop playsinline muted style="width:100%;">
+          <source src="static/videos/simulation_mpinets_1300.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- End Experiments & Results -->
+
+
+<!-- Conclusion -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column">
+        <h2 class="title is-3 has-text-centered">Conclusion</h2>
+        <div class="content has-text-justified">
+          <p>
+            CAMPD is a fast and flexible diffusion-based motion planner that conditions directly on structured
+            contextual information. By combining diffusion modeling, attention, and classifier-free guidance,
+            it generates smooth and feasible trajectories while generalizing to environments not seen during
+            training.
+          </p>
+          <p>
+            The results show that diffusion models are a promising foundation for real-time robot motion planning,
+            especially when multiple candidate solutions and rapid replanning are needed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End conclusion -->
+  
+
+
+
+
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@misc{sandra2026acceleratedmultimodalmotionplanning,
+      title={Accelerated Multi-Modal Motion Planning Using Context-Conditioned Diffusion Models}, 
+      author={Edward Sandra and Lander Vanroye and Dries Dirckx and Ruben Cartuyvels and Jan Swevers and Wilm Decré},
+      year={2026},
+      eprint={2510.14615},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2510.14615}, 
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
 
   <footer class="footer">
   <div class="container">
@@ -337,7 +628,7 @@ required by existing methods.
 
           <p>
             This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
-            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
             Commons Attribution-ShareAlike 4.0 International License</a>.
           </p>
 
