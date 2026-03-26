@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "campd"
+version = "0.0.1"
+authors = [
+  { name="Edward Sandra", email="edward.sandra@kuleuven.be" },
+  { name="Matthias Van EysenDeyk", email="matthias.vaneysendeyk@kuleuven.be" },
+]
+description = "Framework for training context-aware diffusion models on trajectory data"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "einops==0.8.1",
+    "h5py",
+    "pyyaml",
+    "matplotlib",
+    "diffusers",
+    "accelerate",
+    "torchjd",
+    "pydantic",
+    "pydantic_numpy",
+    "wandb",
+    "experiment-launcher @ git+https://github.com/meco-group/experiment-launcher.git@v0.2.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = { file = "LICENSE" }
+
+[project.scripts]
+campd-run = "campd.runner:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:.*__array__ implementation doesn't accept a copy keyword.*:DeprecationWarning:diffusers.*",
+]
