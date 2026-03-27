@@ -1,0 +1,69 @@
+# =============================================================================
+# Inference — MPInets (cuboids + cylinders)
+# =============================================================================
+# Runs a trained diffusion model on a held-out dataset and saves the generated
+# trajectories. No training is performed.
+
+# =============================================================================
+# Dependencies
+# =============================================================================
+dependencies:
+    - "../../src"
+
+# =============================================================================
+# Launcher
+# =============================================================================
+launcher:
+  exp_name: "franka_curobo_inference"
+  n_seeds: 1
+  start_seed: 0
+  base_dir: "results_inference/"
+  use_timestamp: true
+  resources: { n_exps_in_parallel: 1 }
+
+# =============================================================================
+# Experiment
+# =============================================================================
+experiment:
+  cls: "inference"
+
+  # Path to the trained model directory. Must contain model_config/model.yaml
+  # and a checkpoints/ subdirectory.
+  model_dir: "<path_to_model>"
+  model_iter: "last"              # which checkpoint to load: 'best', 'last', or a step number
+  device: "cuda:0"
+
+  # ---------------------------------------------------------------------------
+  # Dataset
+  # ---------------------------------------------------------------------------
+  dataset:
+    dataset_dir: "data/train/mpinets_curobo"
+    hdf5_file: "val.hdf5"
+    trajectory_state: "pos"
+    storage_device: "cpu"
+    load_only_context: true       # skip loading ground-truth trajectories (only obstacles needed)
+    save_samples: true            # persist generated trajectories to disk
+
+    field_config:
+      trajectory_field: "curobo_solutions"
+      q_dim: 7
+      context_fields:
+        cuboids: ["cuboid_centers", "cuboid_dims", "cuboid_quaternions"]
+        cylinders: ["cylinder_centers", "cylinder_heights", "cylinder_radii", "cylinder_quaternions"]
+
+  # ---------------------------------------------------------------------------
+  # Sampling
+  # ---------------------------------------------------------------------------
+  sampling_cfg:
+    n_support_points: 64          # trajectory length (must match training config)
+    batch_size: 64                # number of trajectories generated per forward pass
+    return_chain: false           # if true, return the full denoising chain (all steps)
+    cond_scale: 1.0               # classifier-free guidance scale (1.0 = no guidance boost)
+    inference_scheduler_cls: "diffusers.DPMSolverMultistepScheduler"
+    inference_scheduler_kwargs: {}
+    timesteps: [23, 5, 1]         # custom timestep schedule (subset of training steps)
+    use_cuda_graph: true          # cache the sampling graph for faster repeated inference
+    # Max number of obstacles per sample (pads/truncates to this size for CUDA graphs)
+    context_buffer_sizes:
+      cuboids: 40
+      cylinders: 12

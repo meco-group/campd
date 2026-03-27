@@ -1,0 +1,79 @@
+# =============================================================================
+# Inference — Spheres
+# =============================================================================
+# Runs a trained diffusion model on a test dataset with sphere obstacles
+# and validates the generated trajectories.
+
+# =============================================================================
+# Dependencies
+# =============================================================================
+dependencies:
+    - "../../src"
+
+# =============================================================================
+# Launcher
+# =============================================================================
+launcher:
+  exp_name: "franka_spheres_inference"
+  n_seeds: 1
+  start_seed: 0
+  n_exps_in_parallel: 1
+  base_dir: "results_inference/"
+  use_timestamp: true
+  resources: { n_exps_in_parallel: 1 }
+
+# =============================================================================
+# Experiment
+# =============================================================================
+experiment:
+  cls: "inference"
+
+  model_dir: "<path_to_model>"  
+  model_iter: "last"              # 'best', 'last', or a step number
+  device: "cuda:0"
+  save_samples: true
+
+  # ---------------------------------------------------------------------------
+  # Dataset
+  # ---------------------------------------------------------------------------
+  dataset:
+    dataset_dir: "data/train/franka_spheres"
+    hdf5_file: "data.hdf5"
+    trajectory_state: "pos"
+    storage_device: "cpu"
+    load_only_context: true       # only load obstacle data, not ground-truth trajectories
+    save_samples: true            # persist generated trajectories to disk
+
+    field_config:
+      q_dim: 7
+      context_fields:
+        spheres: ["sphere_centers", "sphere_radii"]
+
+  # ---------------------------------------------------------------------------
+  # Validator
+  # ---------------------------------------------------------------------------
+  # Post-hoc evaluation of generated trajectories: collision checks,
+  # kinematic feasibility, and optional visualisation.
+  validator:
+    cls: "FrankaTrajectoryValidator"
+    registry: "validators"
+    init:
+      use_spheres: true
+      collision_margin: 0.0       # extra margin
+      visualize: false
+      playback_speed: 1.0         # 1.0 = real-time, 2.0 = 2× speed
+
+  # ---------------------------------------------------------------------------
+  # Sampling
+  # ---------------------------------------------------------------------------
+  sampling_cfg:
+    n_support_points: 64
+    batch_size: 64
+    return_chain: false
+    cond_scale: 1.5               # classifier-free guidance scale (> 1 strengthens conditioning)
+    inference_scheduler_cls: "diffusers.DDPMScheduler"
+    inference_scheduler_kwargs: {}
+    timesteps: null               # choose specific timesteps, for e.g. DPMSolverMultistepScheduler
+    use_cuda_graph: true
+    context_buffer_sizes:
+      spheres: 10

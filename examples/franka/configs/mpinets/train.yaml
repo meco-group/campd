@@ -1,0 +1,197 @@
+# =============================================================================
+# Dependencies
+# =============================================================================
+# Paths to directories containing custom registered modules (experiments,
+# callbacks, architectures, etc.) that are imported at startup.
+dependencies:
+    - "../../src"
+
+# =============================================================================
+# W&B Logging
+# =============================================================================
+wandb:
+  mode: "disabled"                  # "online", "offline", or "disabled"
+  entity: "<your-wandb-entity>"
+  project: "franka_curobo"
+  group: "franka_curobo"          # groups related runs together in the dashboard
+
+# =============================================================================
+# Launcher
+# =============================================================================
+# Controls how experiments are launched via experiment-launcher.
+# Can also be run on cluster (SLURM jobs), see 
+# https://github.com/meco-group/experiment-launcher for more information
+launcher:
+  exp_name: "franka_curobo"
+  n_seeds: 1                     # number of independent runs per config
+  start_seed: 0
+  use_timestamp: true             # append timestamp to the results directory
+  compact_dirs: false
+  base_dir: "results/"
+
+  resources:   
+    n_exps_in_parallel: 1
+
+# =============================================================================
+# Experiment
+# =============================================================================
+experiment:
+  cls: "train"                    # registered experiment class
+  dataset_dir: "data/train/mpinets_curobo"   # root directory of the HDF5 dataset
+  train_file: "train.hdf5"
+  val_file: "val.hdf5"           # if null, a split from train_file is used instead
+  val_set_size: null              # fraction of train set used for validation (only when val_file is null)
+  seed: 42
+  device: &device "cuda:0"
+
+  # ---------------------------------------------------------------------------
+  # Dataset
+  # ---------------------------------------------------------------------------
+  dataset:
+    trajectory_state: "pos"       # which state representation: 'pos', 'pos+vel', or 'pos+vel+acc'
+    storage_device: "cpu"         # keep data on CPU to save GPU memory; batches are moved on-the-fly
+
+    tensor_args:
+      device: *device
+      dtype: &dtype "float32"
+
+    # Mapping between HDF5 field names and internal dataset representation.
+    field_config:
+      trajectory_field: "curobo_solutions"        # HDF5 field containing the trajectories
+      q_dim: 7                                    # joint-space dimensionality (7 for Franka Panda)
+      # Maps context types to their HDF5 fields.
+      # Set to null to attempt auto-detection.
+      context_fields:
+        cuboids: ["cuboid_centers", "cuboid_dims", "cuboid_quaternions"]
+        cylinders: ["cylinder_centers", "cylinder_heights", "cylinder_radii", "cylinder_quaternions"]
+
+  # ---------------------------------------------------------------------------
+  # Dataloader
+  # ---------------------------------------------------------------------------
+  dataloader:
+    batch_size: 256
+    num_workers: 6
+    shuffle: true
+    pin_memory: true
+
+  # ---------------------------------------------------------------------------
+  # Model
+  # ---------------------------------------------------------------------------
+  model:
+    state_dim: &state_dim 7       # must match q_dim above
+    model_type: "epsilon"         # prediction target: 'epsilon' (noise), 'sample', or 'v_prediction'
+    n_diffusion_steps: 25         # number of forward-process (noising) steps
+    ddpm_scheduler_extra_kwargs:
+      clip_sample: true
+      beta_schedule: "squaredcos_cap_v2"
+
+    # Denoiser network — predicts noise / sample at each diffusion step
+    network:
+      cls: "TemporalUnet"
+      config:
+        n_support_points: 64      # trajectory length (number of waypoints)
+        state_dim: *state_dim
+        unet_input_dim: 32
+        dim_mults: [1, 2, 4, 8]
+        time_emb_dim: 32
+        attention_num_heads: 4
+        attention_dim_head: 64
+        enable_conditioning: true
+        conditioning_embed_dim: &conditioning_embed_dim 64   # must match context encoder output dim
+        add_time_emb_to_conditioning: false
+
+    # Context encoder — encodes obstacle information into a conditioning vector
+    context_network:
+      cls: "campd.architectures.context.encoder.ContextEncoder"
+      config:
+        # One sub-network per obstacle type; each maps raw obstacle features → embedding
+        key_networks:
+          cuboids:
+            cls: "MLP1D"
+            config:
+              in_dim: 10            # 3 pos + 3 dim + 4 quat
+              out_dim: *conditioning_embed_dim
+              hidden_dim: *conditioning_embed_dim
+              n_layers: 1
+              layer_norm: false
+              act: "mish"
+          cylinders:
+            cls: "MLP1D"
+            config:
+              in_dim: 9             # 3 center + 1 radius + 1 height + 4 quat
+              out_dim: *conditioning_embed_dim
+              hidden_dim: *conditioning_embed_dim
+              n_layers: 1
+              layer_norm: false
+              act: "mish"
+        # Optional: concatenate embeddings from all context types before passing
+        # to the denoiser. Set to null for default (sum) aggregation.
+        concat_config:
+          all: null
+
+    # Normalizer — by default limits are auto-computed from the dataset
+    normalizer: {}
+
+  # ---------------------------------------------------------------------------
+  # Trainer
+  # ---------------------------------------------------------------------------
+  trainer:
+    max_epochs: 200
+    val_check_interval: 1         # run validation every N epochs
+    use_amp: false                # automatic mixed precision
+    clip_grad: 1.0                # gradient clipping max norm
+
+    tensor_args:
+      device: *device
+      dtype: *dtype
+
+    optimizer:
+      cls: "torch.optim.Adam"
+      init:
+        lr: 1.0e-4
+        weight_decay: 0.0
+
+    # Training loss
+    objective:
+      cls: "DiffusionObjective"
+      config:
+        loss_fn:
+          cls: "torch.nn.MSELoss"
+          init:
+            reduction: "mean"     # 'mean' or 'none' for per-element loss
+
+    # Multi-objective optimisation via TorchJD (useful when combining multiple losses)
+    use_torchjd: true
+    torchjd_aggregator:
+      cls: "torchjd.aggregation.UPGrad"
+      init: {}
+
+    # Callbacks — executed at various training hooks
+    callbacks:
+      - cls: "PrinterCallback"
+      - cls: "EMACallback"
+        init:
+          decay: 0.995
+          start_step: 2000
+          update_every: 10
+      - cls: "CheckpointCallback"
+        init:
+          save_every_epochs: 10
+          save_best: true
+          save_last: true
+      - cls: "WandBCallback"
+
+    # Periodic summaries (e.g. visualizations logged to W&B)
+    summaries:
+      - cls: "ValidationSummary"
+        init:
+          every_n_steps: 2500
+          run_first: true
+          train_indices: [0, 1, 2]
+          val_indices: [0, 1, 2]
+          sample_cfg:
+            batch_size: 25
+            n_support_points: 64
+          n_samples_per_context: 5
+          plot_chain: true
+          plot_chain_spacing: 5

@@ -1,0 +1,163 @@
+# =============================================================================
+# Dependencies
+# =============================================================================
+# Paths to directories containing custom registered modules (experiments,
+# callbacks, architectures, etc.) that are imported at startup.
+dependencies:
+    - "../../src"
+
+# =============================================================================
+# W&B Logging
+# =============================================================================
+wandb:
+  mode: "disabled"                  # "online", "offline", or "disabled"
+  entity: "<your-wandb-entity>"
+  project: "franka_curobo"
+  group: "franka_curobo"
+
+# =============================================================================
+# Launcher
+# =============================================================================
+# Controls how experiments are launched via experiment-launcher.
+# When running locally only exp_name and base_dir matter; the cluster
+# sub-sections (resources, duration, slurm, environment) are ignored.
+launcher:
+  exp_name: "franka_curobo"
+  n_seeds: 1
+  start_seed: 0
+  n_exps_in_parallel: 1
+  use_timestamp: true
+  compact_dirs: false
+  base_dir: "results/"
+  after_run_dir: null
+
+  # Cluster settings (ignored when running locally)
+  resources:
+    n_cores: 1
+    memory_per_core: 1024
+    n_exps_in_parallel: 1
+  duration:
+    days: 1
+    hours: 0
+    minutes: 0
+    seconds: 0
+  slurm:
+    project_name: null
+    cluster: null
+    account: null
+    gres: null
+    constraint: null
+    initial_module_load: null
+    begin: null
+  environment:
+    conda_env: null
+    initial_module_load: null
+
+# =============================================================================
+# Experiment
+# =============================================================================
+# This config fine-tunes a pre-trained model on the same dataset.
+# Model architecture is loaded from the checkpoint; only the trainer section
+# needs to be configured here.
+experiment:
+  cls: "train"
+  dataset_dir: "data/train/mpinets_curobo"
+  train_file: "train.hdf5"
+  val_file: "val.hdf5"
+  val_set_size: null
+  seed: 42
+  device: &device "cuda:0"
+
+  # ---------------------------------------------------------------------------
+  # Dataset
+  # ---------------------------------------------------------------------------
+  dataset:
+    trajectory_state: "pos"       # 'pos', 'pos+vel', or 'pos+vel+acc'
+    storage_device: "cpu"
+
+    tensor_args:
+      device: *device
+      dtype: &dtype "float32"
+
+    field_config:
+      trajectory_field: "curobo_solutions"
+      q_dim: 7
+      context_fields:
+        cuboids: ["cuboid_centers", "cuboid_dims", "cuboid_quaternions"]
+        cylinders: ["cylinder_centers", "cylinder_heights", "cylinder_radii", "cylinder_quaternions"]
+
+  # ---------------------------------------------------------------------------
+  # Dataloader
+  # ---------------------------------------------------------------------------
+  dataloader:
+    batch_size: 256
+    num_workers: 6
+    shuffle: true
+    pin_memory: true
+
+  # ---------------------------------------------------------------------------
+  # Pre-trained model (fine-tuning)
+  # ---------------------------------------------------------------------------
+  # Path to a previous training run directory. The model weights, architecture
+  # config, and normalizer state are loaded from this checkpoint.
+  pretrained_model_path: "<path_to_model>"
+
+  # ---------------------------------------------------------------------------
+  # Trainer
+  # ---------------------------------------------------------------------------
+  trainer:
+    max_epochs: 100
+    val_check_interval: 1         # run validation every N epochs
+    use_amp: false
+    clip_grad: 1.0
+
+    tensor_args:
+      device: *device
+      dtype: *dtype
+
+    optimizer:
+      cls: "torch.optim.Adam"
+      init:
+        lr: 1.0e-4
+        weight_decay: 0.0
+
+    objective:
+      cls: "DiffusionObjective"
+      config:
+        loss_fn:
+          cls: "torch.nn.MSELoss"
+          init:
+            reduction: "mean"
+
+    use_torchjd: false
+    torchjd_aggregator:
+      cls: "torchjd.aggregation.UPGrad"
+      init: {}
+
+    callbacks:
+      - cls: "PrinterCallback"
+      - cls: "EMACallback"
+        init:
+          decay: 0.995
+          start_step: 2000
+          update_every: 10
+      - cls: "CheckpointCallback"
+        init:
+          save_every_epochs: 10
+          save_best: true
+          save_last: true
+      - cls: "WandBCallback"
+
+    summaries:
+      - cls: "ValidationSummary"
+        init:
+          every_n_steps: 2500
+          run_first: true
+          train_indices: [0, 1, 2]
+          val_indices: [0, 1, 2]
+          sample_cfg:
+            batch_size: 25
+            n_support_points: 64
+          n_samples_per_context: 5
+          plot_chain: true
+          plot_chain_spacing: 5

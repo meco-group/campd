@@ -1,0 +1,187 @@
+# =============================================================================
+# Dependencies
+# =============================================================================
+dependencies:
+    - "../../src"
+
+# =============================================================================
+# W&B Logging
+# =============================================================================
+wandb:
+  mode: "disabled"                # "online", "offline", or "disabled"
+  entity: "<your-wandb-entity>"
+  project: "franka_spheres_example"
+
+# =============================================================================
+# Launcher
+# =============================================================================
+# Controls how experiments are launched via experiment-launcher.
+# Can also be run on cluster (SLURM jobs), see 
+# https://github.com/meco-group/experiment-launcher for more information
+launcher:
+  exp_name: "franka_spheres"
+  n_seeds: 1
+  start_seed: 0
+  use_timestamp: true
+  compact_dirs: false
+  base_dir: "results/"
+
+  resources: 
+    n_exps_in_parallel: 1
+
+# =============================================================================
+# Experiment
+# =============================================================================
+experiment:
+  cls: "train"
+  dataset_dir: "data/train/franka_spheres"
+  train_file: "train.hdf5"
+  val_set_size: 0.02              # use 2% of training data for validation
+  seed: 42
+  device: &device "cuda:0"
+
+  # ---------------------------------------------------------------------------
+  # Dataset
+  # ---------------------------------------------------------------------------
+  dataset:
+    trajectory_state: "pos"       # 'pos', 'pos+vel', or 'pos+vel+acc'
+    storage_device: "cpu"
+
+    tensor_args:
+      device: *device
+      dtype: &dtype "float32"
+
+    field_config:
+      trajectory_field: "trajectories"
+      q_dim: 7                   # joint-space dimensionality (7 for Franka Panda)
+      context_fields:
+        spheres: ["sphere_centers", "sphere_radii"]
+
+  # ---------------------------------------------------------------------------
+  # Dataloader
+  # ---------------------------------------------------------------------------
+  dataloader:
+    batch_size: 128
+    num_workers: 6
+    shuffle: true
+    pin_memory: true
+    persistent_workers: true      # keep workers alive between epochs (avoids respawn cost)
+    prefetch_factor: 4            # batches prefetched per worker to hide data loading latency
+
+  # ---------------------------------------------------------------------------
+  # Model
+  # ---------------------------------------------------------------------------
+  model:
+    state_dim: &state_dim 7
+    model_type: "epsilon"         # 'epsilon' (noise), 'sample', or 'v_prediction'
+    n_diffusion_steps: 50
+    ddpm_scheduler_extra_kwargs:
+      clip_sample: true
+      beta_schedule: "squaredcos_cap_v2"
+
+    # Denoiser network
+    network:
+      cls: "TemporalUnet"
+      config:
+        n_support_points: 64     # trajectory length (number of waypoints)
+        state_dim: *state_dim
+        unet_input_dim: 32
+        dim_mults: [1, 2, 4, 8]
+        time_emb_dim: 32
+        attention_num_heads: 4
+        attention_dim_head: 64
+        enable_conditioning: true
+        conditioning_embed_dim: &conditioning_embed_dim 64
+        add_time_emb_to_conditioning: false
+
+    # Context encoder — maps raw obstacle features → conditioning vector
+    context_network:
+      cls: "campd.architectures.context.encoder.ContextEncoder"
+      config:
+        key_networks:
+          spheres:
+            cls: "MLP1D"
+            config:
+              in_dim: 4             # 3 center + 1 radius
+              out_dim: *conditioning_embed_dim
+              hidden_dim: *conditioning_embed_dim
+              n_layers: 1
+              layer_norm: false
+              act: "mish"
+        concat_config:
+          all: null
+
+    normalizer: {}
+
+  # ---------------------------------------------------------------------------
+  # Trainer
+  # ---------------------------------------------------------------------------
+  trainer:
+    max_epochs: 100
+    val_check_interval: 10        # run validation every N epochs
+    use_amp: false                # automatic mixed precision
+    clip_grad: 1.0                # gradient clipping max norm
+
+    tensor_args:
+      device: *device
+      dtype: *dtype
+
+    optimizer:
+      cls: "torch.optim.Adam"
+      init:
+        lr: 1.0e-4
+        weight_decay: 0.0
+
+    objective:
+      cls: "DiffusionObjective"
+      config:
+        loss_fn:
+          cls: "torch.nn.MSELoss"
+          init:
+            reduction: "mean"
+
+    use_torchjd: false
+    torchjd_aggregator:
+      cls: "torchjd.aggregation.UPGrad"
+      init: {}
+
+    # CUDA graph acceleration — records the training step into a graph for
+    # faster replay. Incompatible with AMP, TorchJD, and Accelerate / DDP.
+    cuda_graph:
+      enabled: true
+      warmup_iters: 3
+      n_support_points: 64
+      state_dim: *state_dim
+      batch_size: 128             # must match dataloader batch_size
+      context_buffer_sizes:
+        spheres: 10               # max number of sphere obstacles per sample
+      log_every_n_steps: 50       # logging frequency (each log triggers a CUDA sync)
+
+    callbacks:
+      - cls: "PrinterCallback"
+      - cls: "EMACallback"
+        init:
+          decay: 0.995
+          start_step: 2000
+          update_every: 10
+      - cls: "CheckpointCallback"
+        init:
+          save_every_epochs: 10
+          save_best: true
+          save_last: true
+      - cls: "WandBCallback"
+
+    # Periodic summaries (e.g. trajectory visualizations logged to W&B)
+    summaries:
+      - cls: "ValidationSummary"
+        init:
+          every_n_steps: 2500
+          run_first: true
+          train_indices: [0, 1, 2]
+          val_indices: [0, 1, 2]
+          sample_cfg:
+            batch_size: 25
+            n_support_points: 64
+          n_samples_per_context: 5
+          plot_chain: true
+          plot_chain_spacing: 5
