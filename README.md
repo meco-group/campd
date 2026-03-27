@@ -30,6 +30,7 @@ If you use this framework in your research, please cite:
 
 - [Overview](#overview)
 - [Installation](#installation)
+- [Training Data](#training-data)
 - [Core Concepts](#core-concepts)
   - [Registry System](#registry-system)
   - [The `Spec` Pattern](#the-spec-pattern)
@@ -76,6 +77,21 @@ This installs the `campd` package and the `campd-run` CLI entry point.
 > **Note:** Some example projects (e.g. `examples/franka_curobo/`) may have additional dependencies not listed in `pyproject.toml` (e.g. `curobo`, `pinocchio`). These are installed separately; check each example's `requirements.txt`.
 
 > **Note:** If you want to enable Weights and Biases logging, install it with `pip install wandb` and run `wandb login` to authenticate.
+
+---
+
+## Training Data
+
+Training datasets for the **sphere-based** and **MPINets** environments are stored as [Git LFS](https://git-lfs.github.com) objects in a separate repository. Download and extract them before running the example experiments:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/meco-group/campd-data.git /tmp/campd-data
+(cd /tmp/campd-data && git lfs pull)
+mkdir -p data/train/
+tar -xzf /tmp/campd-data/train_data_campd_franka_spheres.tar.gz -C data/train/
+tar -xzf /tmp/campd-data/train_data_campd_mpinets.tar.gz        -C data/train/
+rm -rf /tmp/campd-data
+```
 
 ---
 
