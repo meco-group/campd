@@ -28,7 +28,7 @@ class MLP1DCfg(BaseModel):
     hidden_dim: int = 16
     n_layers: int = 1
     act: Literal[tuple(ACTIVATIONS.keys())] = 'mish'
-    batch_norm: bool = True
+    layer_norm: bool = True
 
 
 @MODULES.register('MLP1D')
@@ -39,16 +39,16 @@ class MLP1D(nn.Module):
         act_func = ACTIVATIONS[config.act]
         layers = [
             nn.Linear(config.in_dim, config.hidden_dim),
-            nn.BatchNorm1d(
-                config.hidden_dim) if config.batch_norm else nn.Identity(),
+            nn.LayerNorm(
+                config.hidden_dim) if config.layer_norm else nn.Identity(),
             act_func(),
         ]
 
         for _ in range(config.n_layers - 1):
             layers += [
                 nn.Linear(config.hidden_dim, config.hidden_dim),
-                nn.BatchNorm1d(
-                    config.hidden_dim) if config.batch_norm else nn.Identity(),
+                nn.LayerNorm(
+                    config.hidden_dim) if config.layer_norm else nn.Identity(),
                 act_func(),
             ]
 
