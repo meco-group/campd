@@ -1,3 +1,9 @@
+"""
+Training callbacks for logging, checkpointing, and early stopping.
+
+Callbacks can hook into various stages of the training loop to perform
+actions without cluttering the main trainer code.
+"""
 from __future__ import annotations
 
 from abc import ABC
@@ -16,8 +22,20 @@ if TYPE_CHECKING:
 
 
 class Callback(ABC):
+    """Base class for trainer callbacks.
+    
+    Callbacks can hook into various stages of the training loop (e.g.,
+    start/end of epochs, batches, or validation).
+    """
     def _is_main_process(self, trainer) -> bool:
-        """Return True if this is the main process (or no accelerator is in use)."""
+        """Checks if the current process is the main process.
+        
+        Args:
+            trainer (Trainer): The trainer instance.
+            
+        Returns:
+            bool: True if this is the main process or no accelerator is used.
+        """
         acc = getattr(trainer, "accelerator", None)
         if acc is None:
             return True
@@ -56,6 +74,7 @@ class Callback(ABC):
 
 @CALLBACKS.register("PrinterCallback")
 class PrinterCallback(Callback):
+    """Simple callback that prints messages when training starts and ends."""
     def on_train_start(self, trainer):
         if self._is_main_process(trainer):
             print("Training started")
@@ -66,19 +85,36 @@ class PrinterCallback(Callback):
 
 
 class EMA:
-    """
-    (empirical) exponential moving average parameters
+    """Exponential Moving Average (EMA) for model parameters.
+    
+    Args:
+        beta (float): The decay rate for the moving average. Defaults to 0.995.
     """
 
     def __init__(self, beta=0.995):
         self.beta = beta
 
     def update_model_average(self, ema_model, current_model):
+        """Updates the parameters of the EMA model using the current model.
+        
+        Args:
+            ema_model (nn.Module): The model containing exponential moving averages.
+            current_model (nn.Module): The current active model.
+        """
         for ema_params, current_params in zip(ema_model.parameters(), current_model.parameters()):
             old_weight, up_weight = ema_params.data, current_params.data
             ema_params.data = self.update_average(old_weight, up_weight)
 
     def update_average(self, old, new):
+        """Computes the updated moving average given old and new values.
+        
+        Args:
+            old (torch.Tensor or None): The previous average value.
+            new (torch.Tensor): The new value to incorporate.
+            
+        Returns:
+            torch.Tensor: The updated average value.
+        """
         if old is None:
             return new
         return old * self.beta + (1 - self.beta) * new
@@ -86,6 +122,16 @@ class EMA:
 
 @CALLBACKS.register("EMACallback")
 class EMACallback(Callback):
+    """Exponential Moving Average (EMA) callback for model parameters.
+    
+    Maintains a smoothed version of the model weights, which often leads to
+    better generation quality in diffusion models.
+    
+    Args:
+        decay: The decay rate (beta) for the EMA.
+        start_step: Number of training steps before starting EMA updates.
+        update_every: Update the EMA model every N steps.
+    """
     def __init__(self, decay: float = 0.995, start_step: int = 2000, update_every: int = 10):
         self.decay = decay
         self.start_step = start_step
@@ -93,6 +139,11 @@ class EMACallback(Callback):
         self.ema: Optional[EMA] = None
 
     def on_train_start(self, trainer):
+        """Initializes the EMA model at the start of training.
+        
+        Args:
+            trainer (Trainer): The trainer instance.
+        """
         if trainer.model is None:
             return
 
@@ -104,6 +155,13 @@ class EMACallback(Callback):
         self.ema = EMA(beta=self.decay)
 
     def on_batch_end(self, trainer, batch, loss_dict):
+        """Updates the EMA model parameters at the end of a batch.
+        
+        Args:
+            trainer (Trainer): The trainer instance.
+            batch (Any): The current training batch.
+            loss_dict (dict): Dictionary of losses from the current batch.
+        """
         if trainer.ema_model is None:
             return
 
@@ -122,6 +180,12 @@ class EMACallback(Callback):
 
 @CALLBACKS.register("EarlyStoppingCallback")
 class EarlyStoppingCallback(Callback):
+    """Stops training if validation loss doesn't improve for a number of epochs.
+    
+    Args:
+        patience: Number of epochs to wait for improvement before stopping.
+        min_delta: Minimum change in the monitored quantity to qualify as an improvement.
+    """
     def __init__(self, patience: int = 10, min_delta: float = 0.0):
         self.patience = patience
         self.min_delta = min_delta
@@ -150,6 +214,14 @@ class EarlyStoppingCallback(Callback):
 
 @CALLBACKS.register("CheckpointCallback")
 class CheckpointCallback(Callback):
+    """Saves model checkpoints during training.
+    
+    Args:
+        save_every_epochs: Save a checkpoint every N epochs.
+        save_best: Whether to save the best model based on validation loss.
+        save_last: Whether to continually overwrite the 'last.pth' checkpoint.
+        save_last_every_steps: Save 'last.pth' every N steps.
+    """
     def __init__(self, save_every_epochs: int = 1, save_best: bool = True, save_last: bool = True,
                  save_last_every_steps: int = 5000):
         self.save_every_epochs = save_every_epochs
@@ -181,6 +253,12 @@ class CheckpointCallback(Callback):
             self.save_checkpoint(trainer, "best.pth")
 
     def save_checkpoint(self, trainer: Trainer, filename: str):
+        """Saves the current model checkpoint to disk.
+        
+        Args:
+            trainer (Trainer): The trainer instance.
+            filename (str): Name of the checkpoint file.
+        """
         if not self._is_main_process(trainer):
             return
         if not trainer.results_dir:

@@ -1,3 +1,6 @@
+"""
+Embedded context representations and configuration for the context encoder.
+"""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional, List, Tuple
@@ -17,8 +20,11 @@ class EmbeddedContext:
     """
 
     embeddings: Dict[str, torch.Tensor]
+    """Dictionary mapping context keys to their embedding tensors."""
     masks: Dict[str, torch.Tensor]
+    """Dictionary mapping context keys to their validity masks."""
     is_batched: bool = True
+    """Whether the embeddings have a batch dimension."""
 
     def __getitem__(self, key: str) -> torch.Tensor:
         if key in self.embeddings:
@@ -35,15 +41,35 @@ class EmbeddedContext:
 
     def concat_keys(self, concat_keys_config: ConcatConfig) -> EmbeddedContext:
         """
-        Concatenates the embeddings and masks according to the concat_config.
-        concat_config must be a dictionary with the following structure:
-        {
-            "<virtual_key>": {
-                "keys": List[str] | None (== all keys)
-            }
-        }
-        It is assumed that the values of the keys that are concatenated have the same shape
-        except for the dimension after the batch dimension.
+        Concatenate embeddings and masks based on a configuration mapping.
+
+        The input configuration defines which existing keys should be combined
+        into each virtual key.
+
+        Args:
+            concat_keys_config (ConcatConfig):
+                A mapping that specifies how keys should be concatenated. The
+                expected structure is::
+
+                    {
+                        "<virtual_key>": {
+                            "keys": List[str] | None
+                        }
+                    }
+
+                - If "keys" is a list, only those keys will be concatenated.
+                - If "keys" is None, all available keys will be concatenated.
+
+        Returns:
+            EmbeddedContext:
+                A new context object containing the concatenated embeddings and
+                masks under the specified virtual keys.
+
+        Notes:
+            - All tensors to be concatenated must have identical shapes except
+              for the feature dimension (dimension after batch).
+            - The batch dimension must be consistent across all tensors.
+            - Concatenation is performed along the feature dimension.
         """
         concatenated_embeddings = {}
         concatenated_masks = {}
@@ -68,6 +94,13 @@ class EmbeddedContext:
         return torch.cat(tensors, dim=dim), torch.cat(masks, dim=dim)
 
     def append(self, key: str, embedding: torch.Tensor, mask: torch.Tensor):
+        """Appends an embedding and mask to an existing key's tensor.
+        
+        Args:
+            key (str): The context key.
+            embedding (torch.Tensor): The new embedding tensor to append.
+            mask (torch.Tensor): The new mask tensor to append.
+        """
         assert key in self.embeddings, f"Key '{key}' not found in embeddings."
         assert key in self.masks, f"Key '{key}' not found in masks."
 
@@ -84,9 +117,13 @@ class EmbeddedContext:
         return EmbeddedContext(embeddings=new_embeddings, masks=new_masks, is_batched=self.is_batched)
 
     def null(self) -> EmbeddedContext:
-        """
-        Returns a "null" context with the same structure/shapes as self,
-        but with masks zeroed out. Useful for CFG unconditional pass.
+        """Creates a "null" context with zeroed-out masks.
+        
+        Returns a context with the same structure and shapes as `self`,
+        but with all masks set to zero. Useful for the CFG unconditional pass.
+        
+        Returns:
+            EmbeddedContext: The null context.
         """
 
         zero_masks: Dict[str, torch.Tensor] = {}
@@ -96,9 +133,17 @@ class EmbeddedContext:
         return EmbeddedContext(embeddings=self.embeddings, masks=zero_masks, is_batched=self.is_batched)
 
     def concat_batch(self, other: EmbeddedContext) -> EmbeddedContext:
-        """
-        Concatenate two EmbeddedContexts along the batch dimension (dim=0).
-        Keys must match. Masks are concatenated when present.
+        """Concatenates two EmbeddedContexts along the batch dimension (dim=0).
+        
+        Args:
+            other (EmbeddedContext): Another context to concatenate with.
+            
+        Returns:
+            EmbeddedContext: The concatenated context.
+            
+        Raises:
+            ValueError: If either context is not batched.
+            KeyError: If embedding or mask keys do not match.
         """
         if self.is_batched is not True or other.is_batched is not True:
             raise ValueError(
@@ -120,11 +165,18 @@ class EmbeddedContext:
         return EmbeddedContext(embeddings=embeddings, masks=masks, is_batched=True)
 
     def has_nan(self) -> bool:
+        """Checks if any embedding or mask tensor contains NaN values.
+        
+        Returns:
+            bool: True if NaNs are present, False otherwise.
+        """
         return any(v.isnan().any() for v in self.embeddings.values()) or any(v.isnan().any() for v in self.masks.values())
 
     def clone(self) -> EmbeddedContext:
-        """
-        Returns a clone of the EmbeddedContext.
+        """Creates a deep copy of the EmbeddedContext.
+        
+        Returns:
+            EmbeddedContext: The cloned context.
         """
         return EmbeddedContext(
             embeddings={k: v.clone() for k, v in self.embeddings.items()},
@@ -133,8 +185,10 @@ class EmbeddedContext:
         )
 
     def copy_(self, other: EmbeddedContext) -> None:
-        """
-        Copies the embeddings and masks from other to self.
+        """Copies the embeddings and masks from another context in-place.
+        
+        Args:
+            other (EmbeddedContext): The source context to copy data from.
         """
         assert self.embeddings.keys() == other.embeddings.keys()
         assert self.masks.keys() == other.masks.keys()

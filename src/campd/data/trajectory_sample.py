@@ -24,7 +24,7 @@ class TrajectorySample:
         if self.context is not None and not self.context.is_batched and self.is_batched:
             self.shared_context = True
 
-    def to(self, device: torch.device, non_blocking: bool = False) -> self.__class__:
+    def to(self, device: torch.device, non_blocking: bool = False) -> 'TrajectorySample':
         """Move all tensors to device."""
 
         if self.trajectory is not None:

@@ -22,3 +22,6 @@ build/
 
 /results/
 /results_inference/
+
+# Sphinx build output
+docs/api/

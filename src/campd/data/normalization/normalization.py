@@ -26,7 +26,8 @@ class NormalizationCfg(BaseModel):
     Allows specifying custom min/max limits for specific fields.
     If a field is not specified, limits will be computed from data.
 
-    Example:
+    Example::
+
         config = NormalizationCfg(
             field_limits={
                 'context_boxes': {

@@ -30,13 +30,17 @@ class HDF5FieldCfg(BaseModel):
         q_dim: Configuration space dimension (e.g., 7 for Panda robot)
         context_fields: Dictionary mapping context type names to HDF5 field name(s)
                        Can be a single string or list of strings to concatenate
-                       Example: {
-                           'cuboids': ['cuboid_centers', 'cuboid_dims', 'cuboid_quats'],
-                           'spheres': 'sphere_data'
-                       }
+                       Example::
+
+                           {
+                               'cuboids': ['cuboid_centers', 'cuboid_dims', 'cuboid_quats'],
+                               'spheres': 'sphere_data'
+                           }
+
                        If None, will auto-detect common field names
 
-    Example:
+    Example::
+
         # Use default field names
         config = HDF5FieldCfg()
 
@@ -167,7 +171,8 @@ class TrajectoryDataset(Dataset, abc.ABC):
         load_all_trajectories: If True, load all data at once
         tensor_args: Dictionary with 'device' and 'dtype' for tensors
 
-    Example:
+    Example::
+
         # Basic usage with defaults
         dataset = MyDataset(dataset_dir='path/to/data')
 

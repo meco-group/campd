@@ -1,4 +1,11 @@
 
+"""
+Core neural network layers and building blocks for CAMPD architectures.
+
+Includes standard MLP implementations, Temporal U-Net residual blocks,
+attention mechanisms, and various normalizations/activations.
+"""
+
 import math
 import torch
 import torch.nn as nn
@@ -9,6 +16,7 @@ from pydantic import BaseModel
 from typing import Literal
 
 
+#: Dictionary mapping activation function names to their PyTorch module classes.
 ACTIVATIONS = {
     'relu': nn.ReLU,
     'sigmoid': nn.Sigmoid,
@@ -23,16 +31,27 @@ ACTIVATIONS = {
 
 
 class MLP1DCfg(BaseModel):
+    """Configuration for a 1D Multi-Layer Perceptron."""
     in_dim: int
+    """Input feature dimension."""
     out_dim: int
+    """Output feature dimension."""
     hidden_dim: int = 16
+    """Dimension of hidden layers."""
     n_layers: int = 1
+    """Number of hidden layers."""
     act: Literal[tuple(ACTIVATIONS.keys())] = 'mish'
+    """Activation function name (e.g., 'relu', 'mish', 'elu')."""
     layer_norm: bool = True
+    """Whether to apply layer normalization after linear layers."""
 
 
 @MODULES.register('MLP1D')
 class MLP1D(nn.Module):
+    """A standard 1D Multi-Layer Perceptron (MLP) module.
+    
+    Constructs a sequence of Linear -> [LayerNorm] -> Activation layers.
+    """
     def __init__(self, config: MLP1DCfg):
         super(MLP1D, self).__init__()
 
@@ -61,10 +80,26 @@ class MLP1D(nn.Module):
 
     @classmethod
     def from_config(cls, config: MLP1DCfg | dict):
+        """Instantiates an MLP1D from a configuration object or dictionary.
+        
+        Args:
+            config (MLP1DCfg | dict): Configuration for the MLP1D.
+            
+        Returns:
+            MLP1D: An instantiated MLP1D module.
+        """
         config = MLP1DCfg.model_validate(config)
         return cls(config)
 
     def forward(self, x):
+        """Forward pass through the MLP.
+        
+        Args:
+            x (torch.Tensor): Input tensor.
+            
+        Returns:
+            torch.Tensor: Output tensor representing the processed features.
+        """
         return self._network(x)
 
 
@@ -73,6 +108,11 @@ class MLP1D(nn.Module):
 ########################################################################################################################
 
 class Residual(nn.Module):
+    """Applies a residual connection around a given function/module.
+    
+    Args:
+        fn (nn.Module): The module to wrap.
+    """
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
@@ -82,6 +122,12 @@ class Residual(nn.Module):
 
 
 class PreNorm(nn.Module):
+    """Applies LayerNorm before a given function/module.
+    
+    Args:
+        dim (int): Feature dimension for normalization.
+        fn (nn.Module): The module to wrap.
+    """
     def __init__(self, dim, fn):
         super().__init__()
         self.fn = fn
@@ -93,6 +139,12 @@ class PreNorm(nn.Module):
 
 
 class LayerNorm(nn.Module):
+    """Custom LayerNorm implementation avoiding standard PyTorch constraints.
+    
+    Args:
+        dim (int): Feature dimension.
+        eps (float): Small value to avoid division by zero.
+    """
     def __init__(self, dim, eps=1e-5):
         super().__init__()
         self.eps = eps
@@ -106,6 +158,12 @@ class LayerNorm(nn.Module):
 
 
 class TimeEncoder(nn.Module):
+    """Encodes time steps using sinusoidal embeddings followed by an MLP.
+    
+    Args:
+        dim (int): Base embedding dimension.
+        dim_out (int): Output embedding dimension.
+    """
     def __init__(self, dim, dim_out):
         super().__init__()
         self.encoder = nn.Sequential(
@@ -120,6 +178,11 @@ class TimeEncoder(nn.Module):
 
 
 class SinusoidalPosEmb(nn.Module):
+    """Sinusoidal positional embeddings for time/position encoding.
+    
+    Args:
+        dim (int): Embedding dimension. Must be an even number.
+    """
     def __init__(self, dim):
         super().__init__()
         self.dim = dim
@@ -135,6 +198,11 @@ class SinusoidalPosEmb(nn.Module):
 
 
 class Downsample1d(nn.Module):
+    """Downsamples a 1D sequence using a strided convolution.
+    
+    Args:
+        dim (int): Number of channels.
+    """
     def __init__(self, dim):
         super().__init__()
         self.conv = nn.Conv1d(dim, dim, kernel_size=3, stride=2, padding=1)
@@ -144,6 +212,11 @@ class Downsample1d(nn.Module):
 
 
 class Upsample1d(nn.Module):
+    """Upsamples a 1D sequence using a transposed convolution.
+    
+    Args:
+        dim (int): Number of channels.
+    """
     def __init__(self, dim):
         super().__init__()
         self.conv = nn.ConvTranspose1d(
@@ -154,9 +227,15 @@ class Upsample1d(nn.Module):
 
 
 class Conv1dBlock(nn.Module):
-    '''
-        Conv1d --> GroupNorm --> Mish
-    '''
+    """A convolutional block applying Conv1d -> GroupNorm -> Mish.
+    
+    Args:
+        inp_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        kernel_size (int): Size of the convolving kernel.
+        padding (int, optional): Zero-padding added to both sides of the input.
+        n_groups (int): Number of groups for GroupNorm. Defaults to 8.
+    """
 
     def __init__(self, inp_channels, out_channels, kernel_size, padding=None, n_groups=8):
         super().__init__()
@@ -176,6 +255,15 @@ class Conv1dBlock(nn.Module):
 
 
 class ResidualTemporalBlock(nn.Module):
+    """A residual temporal block with conditioning for diffusion models.
+    
+    Args:
+        inp_channels (int): Input channel dimension.
+        out_channels (int): Output channel dimension.
+        cond_embed_dim (int): Conditioning embedding dimension.
+        n_support_points (int): Number of support points (sequence length).
+        kernel_size (int): Size of the convolving kernel. Defaults to 5.
+    """
     def __init__(self, inp_channels, out_channels, cond_embed_dim, n_support_points, kernel_size=5):
         super().__init__()
 
@@ -212,6 +300,17 @@ class ResidualTemporalBlock(nn.Module):
 
 
 def group_norm_n_groups(n_channels, target_n_groups=8):
+    """Safely computes the number of groups for GroupNorm based on channels.
+    
+    Finds a valid number of groups (divisible by n_channels) close to target.
+    
+    Args:
+        n_channels (int): Number of channels.
+        target_n_groups (int): Target number of groups. Defaults to 8.
+        
+    Returns:
+        int: Realized number of groups for GroupNorm.
+    """
     if n_channels < target_n_groups:
         return 1
     for n_groups in range(target_n_groups, target_n_groups + 10):

@@ -216,7 +216,7 @@ class TrajectoryContext:
             raise KeyError(
                 f"Sub_key '{sub_key}' not found for parent '{key}'.")
 
-    def to(self, device: torch.device, non_blocking: bool = False) -> self.__class__:
+    def to(self, device: torch.device, non_blocking: bool = False) -> 'TrajectoryContext':
         """Move context data to specified device."""
         new_data = {}
         for key, item in self._items.items():
@@ -233,7 +233,7 @@ class TrajectoryContext:
             is_batched=self.is_batched
         )
 
-    def expand(self, num_trajectories: int) -> self.__class__:
+    def expand(self, num_trajectories: int) -> 'TrajectoryContext':
         """
         Expand a single TrajectoryContext object into a batched object.
         """
@@ -254,7 +254,7 @@ class TrajectoryContext:
             is_batched=True
         )
 
-    def repeat_interleave(self, repeats: int, dim: int = 0) -> self.__class__:
+    def repeat_interleave(self, repeats: int, dim: int = 0) -> 'TrajectoryContext':
         """
         Repeat elements of a batched context.
         """
@@ -361,7 +361,7 @@ class TrajectoryContext:
         return cls(data, components=components, start=merged_start,
                    goal=merged_goal, is_batched=True, is_normalized=is_normalized)
 
-    def normalize(self, normalizer: DatasetNormalizer) -> self.__class__:
+    def normalize(self, normalizer: DatasetNormalizer) -> 'TrajectoryContext':
         """
         Normalize the context.
         """
@@ -385,7 +385,7 @@ class TrajectoryContext:
                               is_normalized=True,
                               is_batched=self.is_batched)
 
-    def denormalize(self, normalizer: DatasetNormalizer) -> self.__class__:
+    def denormalize(self, normalizer: DatasetNormalizer) -> 'TrajectoryContext':
         """
         Denormalize the context.
         """
@@ -502,7 +502,7 @@ class TrajectoryContext:
                 raise ValueError(
                     f"Context batch size {self.start.shape[0]} does not match expected batch size {batch_size}")
 
-    def clone(self) -> self.__class__:
+    def clone(self) -> 'TrajectoryContext':
         """
         Returns a clone of the TrajectoryContext.
         """

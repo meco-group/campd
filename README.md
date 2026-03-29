@@ -25,6 +25,11 @@ If you use this framework in your research, please cite:
 
 ---
 
+## API Documentation
+
+Full API documentation for the project's codebase, including all registries, architectures, and experiments, is available at the [CAMPD API Docs](https://meco-group.github.io/campd/api/).
+
+---
 
 ## Table of Contents
 

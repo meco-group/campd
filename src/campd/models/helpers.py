@@ -40,9 +40,11 @@ def apply_hard_conditioning(x: torch.Tensor, hard_conds: Dict[int | str, torch.T
     Args:
         x: Input tensor of shape [batch_size, n_support_points, state_dim].
         hard_conds: Dictionary containing hard conditioning information. Keys can be:
+        
             - "start": tensor of shape [batch_size, state_dim] for the first support point
             - "goal": tensor of shape [batch_size, state_dim] for the last support point
             - Integer time indices: tensor of shape [batch_size, state_dim] for specific support points
+            
     Returns:
         Tensor with hard conditioning applied.
     """

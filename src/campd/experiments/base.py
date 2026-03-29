@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import yaml
 import random
 import os
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 import numpy as np
 import torch
 from pydantic import BaseModel, ConfigDict, validate_call
