@@ -19,13 +19,7 @@ Install the package:
 
 .. code-block:: bash
 
-   pip install .
-
-For development with documentation tools:
-
-.. code-block:: bash
-
-   pip install ".[docs]"
+   pip install campd
 
 API Reference
 -------------

@@ -74,7 +74,7 @@ Everything is wired together through **YAML config files** and a **registry syst
 ### Steps
 
 ```bash
-pip install git+https://github.com/meco-group/campd.git@v0.1.0
+pip install campd
 ```
 
 This installs the `campd` package and the `campd-run` CLI entry point. 
