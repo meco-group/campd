@@ -23,12 +23,14 @@ wandb:
 ```
 
 ### 3. `launcher`
-Parameters supplied directly to `experiment-launcher`.
+Parameters supplied directly to `experiment-launcher`. For a full list of available options, see [Launching Experiments](launching.md#experiment-launcher-configuration).
 ```yaml
 launcher:
   exp_name: *run_name        # Retrieving the anchor
   base_dir: "results/"
   n_seeds: 1
+  resources:
+    n_exps_in_parallel: 2
 ```
 
 ### 4. `sweep` (Optional)
