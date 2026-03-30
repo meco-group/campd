@@ -24,8 +24,9 @@ dependencies = [
     "pydantic",
     "pydantic_numpy",
     "wandb",
-    "experiment-launcher @ git+https://github.com/meco-group/experiment-launcher.git@v0.2.0",
+    "experiment-launcher-meco"
 ]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
