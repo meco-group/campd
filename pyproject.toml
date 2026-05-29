@@ -20,7 +20,7 @@ dependencies = [
     "matplotlib",
     "diffusers",
     "accelerate",
-    "torchjd",
+    "torchjd==0.8.1",
     "pydantic",
     "pydantic_numpy",
     "wandb",
