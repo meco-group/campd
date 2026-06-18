@@ -120,5 +120,21 @@ class InferenceExperiment(BaseExperiment):
 
         all_stats = summarize_all_stats(all_stats)
 
-        with open(os.path.join(self.cfg.results_dir, 'stats.yaml'), 'w') as f:
+        stats_path = os.path.join(self.cfg.results_dir, 'stats.yaml')
+        with open(stats_path, 'w') as f:
             yaml.dump(all_stats, f)
+
+        print(f'\nInference complete. Results saved to {self.cfg.results_dir}')
+        print(f'Summary statistics ({stats_path}):')
+        for key, val in all_stats.items():
+            if isinstance(val, dict):
+                mean = val.get('mean')
+                std = val.get('std')
+                print(f'  {key}: mean={mean:.4f}  std={std:.4f}')
+            else:
+                print(f'  {key}: {val}')
+        print(
+            '\n  Note: domain-specific metrics and visualizations (e.g. collision checks, '
+            'trajectory plots) need to be implemented via a custom Validator registered '
+            'in the VALIDATORS registry and referenced in your inference config.'
+        )

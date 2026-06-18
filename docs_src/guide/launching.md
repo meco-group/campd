@@ -13,7 +13,7 @@ campd-run configs/train.yaml
 Under the hood, `campd-run` performs several setup tasks:
 1. **Parses the YAML file**, separating global launch directives from internal component configurations.
 2. **Injects Dependencies**: Reads the `dependencies` key and recursively imports any `.py` modules listed. This critically executes your `@REGISTRY.register` decorators *before* the experiment config attempts to load them.
-3. **Initializes the Launcher**: Delegates execution to the [experiment-launcher](https://github.com/robot-learning-group/experiment-launcher) package.
+3. **Initializes the Launcher**: Delegates execution to the [experiment-launcher](https://github.com/meco-group/experiment-launcher) package.
 4. **Executes**: Looks up the `experiment.cls` string in the `EXPERIMENTS` registry, instantiates it, and invokes its `run()` method.
 
 ### Experiment Launcher Configuration

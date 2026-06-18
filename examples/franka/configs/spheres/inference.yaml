@@ -37,8 +37,8 @@ experiment:
   # Dataset
   # ---------------------------------------------------------------------------
   dataset:
-    dataset_dir: "data/train/franka_spheres"
-    hdf5_file: "data.hdf5"
+    dataset_dir: "data/test/franka_spheres"   # update to your test data path
+    hdf5_file: "test.hdf5"
     trajectory_state: "pos"
     storage_device: "cpu"
     load_only_context: true       # only load obstacle data, not ground-truth trajectories

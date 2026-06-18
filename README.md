@@ -35,7 +35,9 @@ Full API documentation for the project's codebase, including all registries, arc
 
 - [Overview](#overview)
 - [Installation](#installation)
+- [Getting Started](#getting-started)
 - [Training Data](#training-data)
+- [Data Generation](#data-generation)
 - [Core Concepts](#core-concepts)
   - [Registry System](#registry-system)
   - [The `Spec` Pattern](#the-spec-pattern)
@@ -47,6 +49,7 @@ Full API documentation for the project's codebase, including all registries, arc
 - [YAML Configuration Reference](#yaml-configuration-reference)
 - [Extending the Framework](#extending-the-framework)
 - [Built-in Components](#built-in-components)
+- [Limitations](#limitations)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -70,6 +73,7 @@ Everything is wired together through **YAML config files** and a **registry syst
 
 - Python ≥ 3.10
 - CUDA-capable GPU (recommended)
+- **Windows is not natively supported.** Use Linux, macOS, or WSL2 on Windows.
 
 ### Steps
 
@@ -77,7 +81,7 @@ Everything is wired together through **YAML config files** and a **registry syst
 pip install campd
 ```
 
-This installs the `campd` package and the `campd-run` CLI entry point. 
+This installs the `campd` package and the `campd-run` CLI entry point.
 
 > **Note:** Some example projects (e.g. `examples/franka_curobo/`) may have additional dependencies not listed in `pyproject.toml` (e.g. `curobo`, `pinocchio`). These are installed separately; check each example's `requirements.txt`.
 
@@ -85,22 +89,101 @@ This installs the `campd` package and the `campd-run` CLI entry point.
 
 ---
 
-## Training Data
+## Getting Started
 
-Training datasets for the **sphere-based** and **MPINets** environments are stored as [Git LFS](https://git-lfs.github.com) objects in a separate repository. Download and extract them before running the example experiments:
+This section walks you through the full pipeline end-to-end using the Franka Panda example.
+
+### Step 1 — Download training and test data
 
 ```bash
 GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/meco-group/campd-data.git /tmp/campd-data
 (cd /tmp/campd-data && git lfs pull)
+
+# Training data
 mkdir -p data/train/
 tar -xzf /tmp/campd-data/train_data_campd_franka_spheres.tar.gz -C data/train/
 tar -xzf /tmp/campd-data/train_data_campd_mpinets.tar.gz        -C data/train/
+
+# Test data (small held-out set for quick inference)
+mkdir -p data/test/
+tar -xzf /tmp/campd-data/test_data_campd_franka_spheres.tar.gz  -C data/test/
+tar -xzf /tmp/campd-data/test_data_campd_mpinets.tar.gz         -C data/test/
+
 rm -rf /tmp/campd-data
 ```
+
+Verify the download:
+
+```bash
+ls data/train/franka_spheres/     # should contain train.hdf5, val.hdf5
+ls data/train/mpinets_curobo/     # should contain train.hdf5, val.hdf5
+ls data/test/franka_spheres/      # should contain test.hdf5
+ls data/test/mpinets_curobo/      # should contain test.hdf5
+```
+
+### Step 2 — Install example dependencies
+
+```bash
+cd examples/franka
+pip install -r requirements.txt
+```
+
+### Step 3 — Train a model
+
+```bash
+campd-run configs/spheres/train.yaml
+```
+
+Training logs loss every batch to the console. If `WandBCallback` is configured, full training curves and periodic summaries are available in your W&B run. Checkpoints are saved under `results/`.
+
+### Step 4 — Run inference
+
+Open `examples/franka/configs/spheres/inference.yaml` and set `model_dir` to the checkpoint directory from your training run:
+
+```yaml
+experiment:
+  model_dir: "results/franka_spheres_train/<timestamp>/1/checkpoints"
+  # dataset_dir and hdf5_file already point to the test set
+```
+
+Then run:
+
+```bash
+campd-run configs/spheres/inference.yaml
+```
+
+Generated trajectories are saved as `.pt` files alongside per-sample `stats.yaml` files. A summary of timing and any validator metrics is printed to the terminal when inference finishes.
+
+> **Note:** Domain-specific evaluation (collision checks, trajectory visualizations, success rate) requires implementing a custom `Validator` for your project. See [Registering a New Validator](#registering-a-new-validator).
+
+---
+
+## Training Data
+
+Training and test datasets for the **sphere-based** and **MPInets** environments are stored as [Git LFS](https://git-lfs.github.com) objects in the [campd-data](https://github.com/meco-group/campd-data) repository. See [Getting Started](#getting-started) for download and verification commands.
+
+---
+
+## Data Generation
+
+CAMPD does not include a data generation pipeline — it is designed to work with trajectory datasets you generate using your own motion planning or simulation tools. The expected format is an HDF5 file where each sample contains:
+
+- A trajectory array (joint positions, or positions + velocities/accelerations depending on `trajectory_state`)
+- Context arrays describing the environment (e.g. obstacle center positions, dimensions, orientations)
+
+See `src/campd/data/trajectory_dataset.py` and the `field_config` section of the [YAML Configuration Reference](#yaml-configuration-reference) for the exact HDF5 key mapping.
+
+The Franka example datasets were generated using [CuRobo](https://github.com/NVlabs/curobo) as a reference motion planner. Refer to the paper (arXiv:2510.14615) for details on the data generation procedure.
 
 ---
 
 ## Core Concepts
+
+### What the model learns
+
+The model is trained to denoise random Gaussian noise into a valid trajectory given an environment context (e.g. obstacle positions and sizes). At inference time, starting from pure noise, the denoising network iteratively refines a trajectory over a fixed number of diffusion steps until it produces a plausible motion plan conditioned on the environment.
+
+Context (obstacles, constraints, etc.) is encoded by an optional context encoder and injected into the denoising network at each step, conditioning the output on the specific scene.
 
 ### Registry System
 
@@ -226,7 +309,7 @@ This:
 1. Parses the YAML file.
 2. Extracts `dependencies`, `experiment`, `wandb`, `launcher`, and `sweep` sections.
 3. Imports built-in and user-defined dependencies to populate registries.
-4. Uses [experiment-launcher](https://github.com/robot-learning-group/experiment-launcher) to manage experiment execution (seeding, output directories, optional SLURM submission).
+4. Uses [experiment-launcher](https://github.com/meco-group/experiment-launcher) to manage experiment execution (seeding, output directories, optional SLURM submission).
 5. Looks up the experiment class via `experiment.cls` in the `EXPERIMENTS` registry and calls its `run()` method.
 
 **Launcher configuration** controls experiment management:
@@ -485,6 +568,8 @@ class MyObjective(TrainingObjective):
 
 ### Registering a New Validator
 
+Validators run after each sample during inference and are the right place to implement domain-specific checks (collision detection, kinematic feasibility, trajectory visualization, success rate):
+
 ```python
 from campd.experiments.validators import Validator, VALIDATORS
 
@@ -493,6 +578,17 @@ class MyValidator(Validator):
     def validate(self, batch, output_dir):
         # Return dict of validation metrics
         return {"success_rate": 0.85}
+```
+
+Reference the validator in your inference config:
+
+```yaml
+experiment:
+  validator:
+    cls: "MyValidator"
+    registry: "validators"
+    init:
+      my_param: true
 ```
 
 ---
@@ -506,13 +602,13 @@ class MyValidator(Validator):
 | `"inference"`  | `InferenceExperiment`      | Load checkpoint & sample trajectories      |
 
 ### Callbacks
-| Key                    | Description                                       |
-|:-----------------------|:--------------------------------------------------|
-| `"PrinterCallback"`   | Logs training start/end messages                  |
-| `"EMACallback"`       | Exponential moving average of model weights       |
-| `"CheckpointCallback"`| Saves checkpoints (best, last, periodic)          |
-| `"WandBCallback"`     | Logs metrics/artifacts to Weights & Biases        |
-| `"EarlyStoppingCallback"` | Stops training when validation loss plateaus  |
+| Key                        | Description                                        |
+|:---------------------------|:---------------------------------------------------|
+| `"PrinterCallback"`        | Logs training start/end messages and final losses  |
+| `"EMACallback"`            | Exponential moving average of model weights        |
+| `"CheckpointCallback"`     | Saves checkpoints (best, last, periodic)           |
+| `"WandBCallback"`          | Logs metrics/artifacts to Weights & Biases         |
+| `"EarlyStoppingCallback"`  | Stops training when validation loss plateaus       |
 
 ### Objectives
 | Key                      | Description                                  |
@@ -527,6 +623,13 @@ class MyValidator(Validator):
 | `"MSE"`        | `nn.MSELoss`     |
 | `"L1"`         | `nn.L1Loss`      |
 
+---
+
+## Limitations
+
+- **Windows is not natively supported.** Use Linux, macOS, or WSL2 on Windows.
+- **Metrics and visualizations are not built-in.** Training loss is logged to the console and optionally to W&B. Inference prints a timing and stats summary. Domain-specific evaluation (collision rate, trajectory quality, plots) must be implemented as a custom `Validator` or `Summary` for your project.
+- **CUDA graph training requires fixed tensor shapes.** If `cuda_graph.enabled: true`, the batch size, trajectory length, state dimension, and context sizes must be constant across all batches. CUDA graphs are also incompatible with TorchJD multi-objective and Accelerate DDP.
 ---
 
 ## Troubleshooting

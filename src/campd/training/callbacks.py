@@ -75,13 +75,30 @@ class Callback(ABC):
 @CALLBACKS.register("PrinterCallback")
 class PrinterCallback(Callback):
     """Simple callback that prints messages when training starts and ends."""
+
+    def __init__(self):
+        self._last_train_losses: Optional[Dict[str, float]] = None
+
     def on_train_start(self, trainer):
         if self._is_main_process(trainer):
             print("Training started")
 
+    def on_epoch_end(self, trainer, train_losses: Optional[Dict[str, float]] = None):
+        self._last_train_losses = train_losses
+
     def on_train_end(self, trainer):
-        if self._is_main_process(trainer):
-            print("Training ended")
+        if not self._is_main_process(trainer):
+            return
+        print("Training complete.")
+        if self._last_train_losses:
+            loss_str = "  ".join(
+                f"{k}: {v:.6f}" for k, v in self._last_train_losses.items()
+            )
+            print(f"  Final training losses — {loss_str}")
+        print(
+            "  Note: detailed metrics and visualizations are project-specific. "
+            "If WandBCallback is configured, full training curves are available in your W&B run."
+        )
 
 
 class EMA:

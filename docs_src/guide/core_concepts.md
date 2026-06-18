@@ -1,5 +1,13 @@
 # Core Concepts
 
+## What the model learns
+
+The model is trained to denoise random Gaussian noise into a valid trajectory given an environment context (e.g. obstacle positions and sizes). At inference time, starting from pure noise, the denoising network iteratively refines a trajectory over a fixed number of diffusion steps until it produces a plausible motion plan conditioned on the specific scene.
+
+Context (obstacles, constraints, etc.) is encoded by an optional context encoder and injected into the denoising network at each step. This allows the model to generate diverse, multi-modal trajectory distributions rather than a single deterministic plan.
+
+## Software Architecture
+
 CAMPD is built around a flexible, modular architecture designed to separate the definition of physical components from their configuration and instantiation.
 
 ## Registry System

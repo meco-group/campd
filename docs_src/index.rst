@@ -12,15 +12,6 @@ to condition a U-Net diffusion model on structured, sensor-agnostic contextual i
    For the project overview, paper, and demo videos, visit the
    `project page <https://meco-group.github.io/campd/>`_.
 
-Getting Started
----------------
-
-Install the package:
-
-.. code-block:: bash
-
-   pip install campd
-
 API Reference
 -------------
 
@@ -28,10 +19,13 @@ API Reference
    :maxdepth: 2
    :caption: User Guide
 
+   guide/getting_started
+   guide/data_generation
    guide/core_concepts
    guide/launching
    guide/yaml_config
    guide/extending
+   guide/limitations
    guide/troubleshooting
 
 .. toctree::
