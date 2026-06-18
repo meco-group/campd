@@ -361,7 +361,7 @@ class TestPrinterCallback:
 
         callback.on_train_end(trainer)
         captured = capsys.readouterr()
-        assert "Training ended" in captured.out
+        assert "Training complete" in captured.out
 
 
 class TestCallbackHooks:
