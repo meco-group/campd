@@ -26,3 +26,5 @@ build/
 # Sphinx build output
 docs/api/
 dist/
+
+CLAUDE.md
